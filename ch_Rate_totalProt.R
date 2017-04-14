@@ -18,6 +18,9 @@ infiles = dir("/Users/cshughes/Documents/projects/tmtPlexing/ratePaper_totalProt
 #read in the files into a list
 msmsSet <- lapply(infiles, read.table, header=TRUE, sep='\t')
 names(msmsSet) = c(sub(".*?6-2\\_(.*?)(\\_MSMSSpectrumInfo\\.txt.*|$)", "\\1", infiles))
+#get the spike peptide data
+spikes = read.table('/Users/cshughes/Documents/projects/tmtPlexing/ratePaper_totalProt/spiked_peptides.txt',header=TRUE,sep='\t')
+
 
 #######calculate the mean number of MS2 spectra
 #create a data holder
@@ -84,6 +87,7 @@ for (i in 1:length(psmSet)){
 	pep = filter(pep, Master.Protein.Accessions == 'SPIKE')
 	pep$Annotated.Sequence = toupper(sub('.*?\\.(.*?)(\\..*|$)','\\1',pep$Annotated.Sequence))
 	pep = unique(pep)
+	pep = pep[as.character(pep$Annotated.Sequence) %in% as.character(spikes$Sequence),]
 	pep$meanHigh = rowMeans(pep[,3:5],na.rm=TRUE)
 	pep$meanLow = rowMeans(pep[,6:8],na.rm=TRUE)
 	pep$logFC = log2(pep$meanHigh/pep$meanLow)
@@ -113,8 +117,13 @@ plot(ot.it$logFC.x,
 		cex = 1.5,
 		xlim = c(-1,4),
 		ylim = c(-1,4))
+abline(v = mean(ot.it$logFC.x))
+abline(h = mean(ot.it$logFC.y))
 dev.off()
 
+#get the error rates for both detectors
+ot.it$errorOT = abs(((ot.it$logFC.x - 1.6)/1.6)*100)
+ot.it$errorIT = abs(((ot.it$logFC.y - 1.6)/1.6)*100)
 
 
 

@@ -131,7 +131,7 @@ for (i in 1:length(psmSet)){
 
 #bind all of the data together into a single frame
 lsetout = data.frame()
-for (x in 1:3){
+for (x in 10:12){
 	lset = as.data.frame(spikeData[[x]])
 	lsetout = rbind(lsetout,lset)
 }
